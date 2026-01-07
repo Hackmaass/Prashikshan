@@ -15,6 +15,7 @@ import SettingsPage from './pages/SettingsPage';
 import QuizPage from './pages/QuizPage';
 import AITutorPage from './pages/AITutorPage';
 import ClickSpark from './components/ClickSpark';
+import { ToastProvider } from './components/Toast';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -74,57 +75,59 @@ const App: React.FC = () => {
   }
 
   return (
-    <ClickSpark sparkColor="#6366f1" sparkCount={8} sparkRadius={15} duration={400} className="min-h-screen">
-      <HashRouter>
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/landing" element={!isAuthenticated ? <LandingPage /> : <Navigate to="/" replace />} />
-          
-          {/* Auth Route */}
-          <Route path="/auth" element={
-            !isAuthenticated ? (
-              <AuthPage onLoginSuccess={handleLoginSuccess} />
-            ) : (
-              <Navigate to="/" replace />
-            )
-          } />
-
-          {/* Evaluation Route (Fullscreen, no layout) */}
-          <Route path="/quiz" element={
-            isAuthenticated && userRole === UserRole.STUDENT ? (
-              <QuizPage onComplete={setEvaluationResult} />
-            ) : (
-               <Navigate to="/auth" replace />
-            )
-          } />
-
-          {/* Protected Routes */}
-          <Route 
-            path="/*" 
-            element={
-              isAuthenticated ? (
-                <Layout userRole={userRole} userName={userName} onLogout={handleLogout}>
-                  <Routes>
-                    {/* Pass hasAssessment status to Dashboard to conditionally show the CTA */}
-                    <Route index element={<StudentDashboard hasAssessment={!!evaluationResult} />} />
-                    <Route path="ai-tutor" element={<AITutorPage evaluation={evaluationResult} />} />
-                    <Route path="resume" element={<ResumeBuilder />} />
-                    <Route path="interview" element={<InterviewPractice />} />
-                    <Route path="internships" element={<InternshipsPage />} />
-                    <Route path="analytics" element={<AnalyticsPage />} />
-                    <Route path="settings" element={<SettingsPage />} />
-                    <Route path="post-internship" element={<InternshipsPage />} />
-                    <Route path="students-list" element={<div className="p-10 text-center opacity-50"><p className="text-2xl font-bold">Student Database Access Restricted</p></div>} />
-                  </Routes>
-                </Layout>
+    <ToastProvider>
+      <ClickSpark sparkColor="#6366f1" sparkCount={8} sparkRadius={15} duration={400} className="min-h-screen">
+        <HashRouter>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/landing" element={!isAuthenticated ? <LandingPage /> : <Navigate to="/" replace />} />
+            
+            {/* Auth Route */}
+            <Route path="/auth" element={
+              !isAuthenticated ? (
+                <AuthPage onLoginSuccess={handleLoginSuccess} />
               ) : (
-                <Navigate to="/landing" replace />
+                <Navigate to="/" replace />
               )
-            } 
-          />
-        </Routes>
-      </HashRouter>
-    </ClickSpark>
+            } />
+
+            {/* Evaluation Route (Fullscreen, no layout) */}
+            <Route path="/quiz" element={
+              isAuthenticated && userRole === UserRole.STUDENT ? (
+                <QuizPage onComplete={setEvaluationResult} />
+              ) : (
+                 <Navigate to="/auth" replace />
+              )
+            } />
+
+            {/* Protected Routes */}
+            <Route 
+              path="/*" 
+              element={
+                isAuthenticated ? (
+                  <Layout userRole={userRole} userName={userName} onLogout={handleLogout}>
+                    <Routes>
+                      {/* Pass hasAssessment status to Dashboard to conditionally show the CTA */}
+                      <Route index element={<StudentDashboard hasAssessment={!!evaluationResult} />} />
+                      <Route path="ai-tutor" element={<AITutorPage evaluation={evaluationResult} />} />
+                      <Route path="resume" element={<ResumeBuilder />} />
+                      <Route path="interview" element={<InterviewPractice />} />
+                      <Route path="internships" element={<InternshipsPage />} />
+                      <Route path="analytics" element={<AnalyticsPage />} />
+                      <Route path="settings" element={<SettingsPage />} />
+                      <Route path="post-internship" element={<InternshipsPage />} />
+                      <Route path="students-list" element={<div className="p-10 text-center opacity-50"><p className="text-2xl font-bold">Student Database Access Restricted</p></div>} />
+                    </Routes>
+                  </Layout>
+                ) : (
+                  <Navigate to="/landing" replace />
+                )
+              } 
+            />
+          </Routes>
+        </HashRouter>
+      </ClickSpark>
+    </ToastProvider>
   );
 };
 
