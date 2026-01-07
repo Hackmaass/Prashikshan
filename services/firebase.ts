@@ -1,5 +1,6 @@
 
 import { initializeApp } from 'firebase/app';
+import { getAnalytics } from 'firebase/analytics';
 import { 
   getAuth, 
   createUserWithEmailAndPassword, 
@@ -19,7 +20,7 @@ import {
 import { UserRole, EvaluationResult } from '../types';
 
 // Check for API Key validity
-const hasApiKey = !!process.env.FIREBASE_API_KEY && process.env.FIREBASE_API_KEY !== 'undefined';
+const hasApiKey = !!import.meta.env.VITE_FIREBASE_API_KEY && import.meta.env.VITE_FIREBASE_API_KEY !== 'undefined';
 
 // --- Real Firebase Implementation Variables ---
 let realAuth: any;
@@ -28,17 +29,21 @@ let realApp: any;
 
 if (hasApiKey) {
   const firebaseConfig = {
-    apiKey: process.env.FIREBASE_API_KEY,
-    authDomain: process.env.FIREBASE_AUTH_DOMAIN,
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
-    appId: process.env.FIREBASE_APP_ID
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+    appId: import.meta.env.VITE_FIREBASE_APP_ID,
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
   };
   try {
     realApp = initializeApp(firebaseConfig);
     realAuth = getAuth(realApp);
     realDb = getFirestore(realApp);
+    if (typeof window !== 'undefined') {
+      getAnalytics(realApp);
+    }
   } catch (error) {
     console.error("Firebase Initialization Error:", error);
   }
@@ -189,6 +194,32 @@ export const firebaseService = {
       if (email) {
         users[email].evaluation = result;
         users[email].lastUpdated = new Date().toISOString();
+        saveMockUsers(users);
+      }
+    }
+  },
+
+  async saveResumeAnalysis(userId: string, resumeText: string, analysis: any) {
+    if (hasApiKey && realDb) {
+      const userRef = doc(realDb, 'users', userId);
+      // In a real app, you might want to store this in a sub-collection 'resumeHistory'
+      // For now, we'll store it in a single field or simple array
+      await updateDoc(userRef, {
+        lastResumeAnalysis: {
+          text: resumeText,
+          analysis,
+          timestamp: new Date().toISOString()
+        }
+      });
+    } else {
+      const users = getMockUsers();
+      const email = Object.keys(users).find(k => users[k].uid === userId);
+      if (email) {
+        users[email].lastResumeAnalysis = {
+          text: resumeText,
+          analysis,
+          timestamp: new Date().toISOString()
+        };
         saveMockUsers(users);
       }
     }

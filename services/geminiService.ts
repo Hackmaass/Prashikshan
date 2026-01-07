@@ -2,11 +2,11 @@
 import { GoogleGenAI, Type } from "@google/genai";
 
 // Check if API key exists and is not a placeholder/empty
-const hasApiKey = !!process.env.API_KEY && process.env.API_KEY !== 'undefined' && process.env.API_KEY !== '';
+const hasApiKey = !!import.meta.env.VITE_GEMINI_API_KEY && import.meta.env.VITE_GEMINI_API_KEY !== 'undefined' && import.meta.env.VITE_GEMINI_API_KEY !== '';
 
 const getAI = () => {
   if (!hasApiKey) return null;
-  return new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+  return new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || '' });
 };
 
 // Helper to safely extract JSON from markdown code blocks often returned by LLMs
@@ -123,8 +123,11 @@ export const geminiService = {
         }
       });
       return cleanJSON(response.text || '{}');
-    } catch (error) {
+    } catch (error: any) {
       console.error("Analysis Error:", error);
+      if (error?.message?.includes('429') || error?.status === 429 || error?.toString().includes('Quota exceeded')) {
+        throw new Error("QUOTA_EXCEEDED");
+      }
       return null;
     }
   },
