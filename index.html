@@ -13,19 +13,32 @@
       :root {
         --glass-border: rgba(255, 255, 255, 0.08);
         --glass-surface: rgba(255, 255, 255, 0.03);
+        --grid-color: rgba(0, 0, 0, 0.04);
+        --bg-color: #f8fafc;
+        --text-color: #0f172a;
       }
+      
+      .dark {
+        --grid-color: rgba(255, 255, 255, 0.03);
+        --bg-color: #0B1121;
+        --text-color: #f8fafc;
+      }
+
       body {
         font-family: 'Plus Jakarta Sans', sans-serif;
-        background-color: #0f172a; /* Slate 950 base */
+        background-color: var(--bg-color);
+        color: var(--text-color);
+        transition: background-color 0.5s ease, color 0.5s ease;
       }
       
       /* Background Grid Pattern */
       .bg-grid-pattern {
         background-size: 40px 40px;
-        background-image: linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                          linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+        background-image: linear-gradient(to right, var(--grid-color) 1px, transparent 1px),
+                          linear-gradient(to bottom, var(--grid-color) 1px, transparent 1px);
         mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
         -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+        transition: background-image 0.5s ease;
       }
 
       .scrollbar-hide::-webkit-scrollbar {
@@ -58,19 +71,34 @@
       }
       
       .glass-card {
-        background: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.8);
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.5);
+        border: 1px solid rgba(226, 232, 240, 0.8);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
       }
       .dark .glass-card {
         background: rgba(15, 23, 42, 0.6);
         border: 1px solid rgba(255, 255, 255, 0.05);
+        box-shadow: none;
       }
     </style>
     <script>
       // Shim process.env for the browser environment
       window.process = window.process || { env: {} };
+      
+      // Prevent FOUC (Flash of Unstyled Content) and set initial theme
+      (function() {
+        try {
+          var savedTheme = localStorage.getItem('theme');
+          var systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          if (savedTheme === 'dark' || (!savedTheme && systemTheme)) {
+            document.documentElement.classList.add('dark');
+          } else {
+            document.documentElement.classList.remove('dark');
+          }
+        } catch (e) {}
+      })();
     </script>
     <script type="importmap">
 {
@@ -92,11 +120,9 @@
   }
 }
 </script>
-  <link rel="stylesheet" href="/index.css">
-</head>
-  <body class="bg-slate-50 dark:bg-[#0B1121] text-slate-900 dark:text-slate-100 transition-colors duration-300 ease-in-out antialiased selection:bg-indigo-500 selection:text-white overflow-x-hidden">
-    <div class="fixed inset-0 bg-grid-pattern opacity-[0.4] pointer-events-none z-0"></div>
+  </head>
+  <body class="transition-colors duration-300 ease-in-out antialiased selection:bg-indigo-500 selection:text-white overflow-x-hidden">
+    <div class="fixed inset-0 bg-grid-pattern opacity-100 pointer-events-none z-0"></div>
     <div id="root" class="relative z-10"></div>
-  <script type="module" src="/index.tsx"></script>
-</body>
+  </body>
 </html>

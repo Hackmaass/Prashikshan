@@ -91,7 +91,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ hasAssessment = fal
         <div className="flex gap-3">
           <div className="px-5 py-2.5 bg-white dark:bg-white/5 backdrop-blur-md border border-slate-200 dark:border-white/10 rounded-xl flex items-center gap-3 shadow-sm">
             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div>
-            <span className="text-sm font-bold dark:text-slate-200">Open to Work</span>
+            <span className="text-sm font-bold text-slate-700 dark:text-slate-200">Open to Work</span>
           </div>
         </div>
       </header>
@@ -126,7 +126,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ hasAssessment = fal
         {/* Employability Score */}
         <motion.div variants={itemVars} className="lg:col-span-1 glass-card p-8 rounded-3xl flex flex-col items-center justify-between min-h-[400px]">
           <div className="w-full flex justify-between items-center mb-4">
-            <h3 className="text-lg font-bold dark:text-white">Readiness Score</h3>
+            <h3 className="text-lg font-bold text-slate-900 dark:text-white">Readiness Score</h3>
             <button className="p-2 hover:bg-slate-100 dark:hover:bg-white/10 rounded-lg transition-colors">
               <MoreHorizontal className="w-5 h-5 text-slate-400" />
             </button>
@@ -148,7 +148,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ hasAssessment = fal
                      {employabilityData.map((entry, index) => (
                        <Cell 
                           key={`cell-${index}`} 
-                          fill={index === 0 ? '#6366f1' : 'rgba(255,255,255,0.05)'} 
+                          fill={index === 0 ? '#6366f1' : 'rgba(148, 163, 184, 0.2)'} 
                           className="dark:stroke-transparent"
                         />
                      ))}
@@ -186,9 +186,9 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ hasAssessment = fal
         {/* Skill Matrix */}
         <motion.div variants={itemVars} className="lg:col-span-2 glass-card p-8 rounded-3xl flex flex-col">
            <div className="flex justify-between items-center mb-8">
-             <h3 className="text-lg font-bold dark:text-white">Skill Proficiency</h3>
+             <h3 className="text-lg font-bold text-slate-900 dark:text-white">Skill Proficiency</h3>
              <div className="flex bg-slate-100 dark:bg-white/5 p-1 rounded-xl">
-               <button className="px-4 py-1.5 bg-white dark:bg-white/10 shadow-sm rounded-lg text-xs font-bold dark:text-white">Technical</button>
+               <button className="px-4 py-1.5 bg-white dark:bg-white/10 shadow-sm rounded-lg text-xs font-bold text-slate-900 dark:text-white">Technical</button>
                <button className="px-4 py-1.5 text-slate-500 dark:text-slate-400 text-xs font-bold hover:text-slate-900 dark:hover:text-white transition-colors">Soft Skills</button>
              </div>
            </div>
@@ -207,7 +207,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ hasAssessment = fal
                    <YAxis hide />
                    <Tooltip 
                       cursor={{fill: 'rgba(99, 102, 241, 0.1)', radius: 8}}
-                      contentStyle={{ background: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }}
+                      contentStyle={{ background: '#1e293b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', color: '#fff' }}
                       itemStyle={{ color: '#fff' }}
                    />
                    <Bar dataKey="score" radius={[8, 8, 8, 8]}>
@@ -233,7 +233,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ hasAssessment = fal
         {/* Recommended Internships */}
         <motion.div variants={itemVars} className="space-y-6">
           <div className="flex items-center justify-between px-2">
-            <h2 className="text-xl font-bold dark:text-white flex items-center gap-2">
+            <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
               <Target className="w-5 h-5 text-indigo-500" /> Recommended For You
             </h2>
             <Link to="/internships" className="text-sm font-bold text-slate-500 dark:text-slate-400 hover:text-indigo-500 transition-colors">
@@ -250,7 +250,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ hasAssessment = fal
                       {internship.company[0]}
                     </div>
                     <div>
-                      <h4 className="font-bold dark:text-white group-hover:text-indigo-500 transition-colors">{internship.title}</h4>
+                      <h4 className="font-bold text-slate-900 dark:text-white group-hover:text-indigo-500 transition-colors">{internship.title}</h4>
                       <div className="flex items-center gap-2 text-sm text-slate-500 mt-1">
                         <span>{internship.company}</span>
                         <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600"></span>
@@ -276,7 +276,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ hasAssessment = fal
 
         {/* Upcoming Events */}
         <motion.div variants={itemVars} className="space-y-6">
-          <h2 className="text-xl font-bold dark:text-white px-2 flex items-center gap-2">
+          <h2 className="text-xl font-bold text-slate-900 dark:text-white px-2 flex items-center gap-2">
             <Calendar className="w-5 h-5 text-indigo-500" /> Upcoming Schedule
           </h2>
           <div className="glass-card p-8 rounded-3xl min-h-[300px] flex flex-col justify-center">
@@ -321,7 +321,7 @@ const EventItem = ({ time, title, tag, isActive = false }: { time: string, title
     </div>
     <div className="flex-1 pt-1">
       <div className="flex justify-between items-start mb-1">
-        <h4 className={`font-bold ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'dark:text-white'} group-hover:text-indigo-500 transition-colors`}>{title}</h4>
+        <h4 className={`font-bold ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-900 dark:text-white'} group-hover:text-indigo-500 transition-colors`}>{title}</h4>
         <span className="text-xs font-semibold text-slate-400 bg-slate-100 dark:bg-white/5 px-2 py-0.5 rounded-md">{time}</span>
       </div>
       <p className="text-sm text-slate-500 dark:text-slate-400">{tag}</p>

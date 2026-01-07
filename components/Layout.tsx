@@ -16,21 +16,36 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children, userRole, userName, onLogout }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true); // Default to dark for "senior" vibe
+  
+  // Initialize theme from localStorage or system preference
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        return savedTheme === 'dark';
+      }
+      return window.matchMedia('(prefers-color-scheme: dark)').matches;
+    }
+    return true; // Default to dark if unknown
+  });
+
   const location = useLocation();
 
   useEffect(() => {
+    const root = document.documentElement;
     if (isDarkMode) {
-      document.documentElement.classList.add('dark');
+      root.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
     } else {
-      document.documentElement.classList.remove('dark');
+      root.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
     }
   }, [isDarkMode]);
 
   const filteredNavItems = NAV_ITEMS.filter(item => item.roles.includes(userRole));
 
   return (
-    <div className="min-h-screen flex bg-slate-50 dark:bg-[#0B1121] transition-colors duration-500">
+    <div className="min-h-screen flex bg-transparent transition-colors duration-500">
       {/* Sidebar - Desktop */}
       <aside className={`
         fixed inset-y-0 left-0 z-50 w-72 
