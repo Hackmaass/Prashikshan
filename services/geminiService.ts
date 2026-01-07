@@ -1,12 +1,18 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
+// Helper to safely get environment variables
+const getEnvVar = (name: string) => {
+  return import.meta.env[name] || (typeof process !== 'undefined' ? process.env[name] : undefined);
+};
+
 // Check if API key exists and is not a placeholder/empty
-const hasApiKey = !!import.meta.env.VITE_GEMINI_API_KEY && import.meta.env.VITE_GEMINI_API_KEY !== 'undefined' && import.meta.env.VITE_GEMINI_API_KEY !== '';
+const apiKey = getEnvVar('VITE_GEMINI_API_KEY') || getEnvVar('GEMINI_API_KEY') || getEnvVar('API_KEY');
+const hasApiKey = !!apiKey && apiKey !== 'undefined' && apiKey !== '';
 
 const getAI = () => {
   if (!hasApiKey) return null;
-  return new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY || '' });
+  return new GoogleGenAI({ apiKey: apiKey || '' });
 };
 
 // Helper to safely extract JSON from markdown code blocks often returned by LLMs

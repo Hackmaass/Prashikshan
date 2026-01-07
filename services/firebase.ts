@@ -1,4 +1,3 @@
-
 import { initializeApp } from 'firebase/app';
 import { getAnalytics } from 'firebase/analytics';
 import { 
@@ -19,8 +18,14 @@ import {
 } from 'firebase/firestore';
 import { UserRole, EvaluationResult } from '../types';
 
+// Helper to safely get environment variables from Vite or process.env fallbacks
+const getEnvVar = (name: string) => {
+  return import.meta.env[name] || (typeof process !== 'undefined' ? process.env[name] : undefined);
+};
+
 // Check for API Key validity
-const hasApiKey = !!import.meta.env.VITE_FIREBASE_API_KEY && import.meta.env.VITE_FIREBASE_API_KEY !== 'undefined';
+const apiKey = getEnvVar('VITE_FIREBASE_API_KEY') || getEnvVar('FIREBASE_API_KEY');
+const hasApiKey = !!apiKey && apiKey !== 'undefined' && apiKey !== '';
 
 // --- Real Firebase Implementation Variables ---
 let realAuth: any;
@@ -29,13 +34,13 @@ let realApp: any;
 
 if (hasApiKey) {
   const firebaseConfig = {
-    apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-    appId: import.meta.env.VITE_FIREBASE_APP_ID,
-    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
+    apiKey: getEnvVar('VITE_FIREBASE_API_KEY') || getEnvVar('FIREBASE_API_KEY'),
+    authDomain: getEnvVar('VITE_FIREBASE_AUTH_DOMAIN') || getEnvVar('FIREBASE_AUTH_DOMAIN'),
+    projectId: getEnvVar('VITE_FIREBASE_PROJECT_ID') || getEnvVar('FIREBASE_PROJECT_ID'),
+    storageBucket: getEnvVar('VITE_FIREBASE_STORAGE_BUCKET') || getEnvVar('FIREBASE_STORAGE_BUCKET'),
+    messagingSenderId: getEnvVar('VITE_FIREBASE_MESSAGING_SENDER_ID') || getEnvVar('FIREBASE_MESSAGING_SENDER_ID'),
+    appId: getEnvVar('VITE_FIREBASE_APP_ID') || getEnvVar('FIREBASE_APP_ID'),
+    measurementId: getEnvVar('VITE_FIREBASE_MEASUREMENT_ID') || getEnvVar('FIREBASE_MEASUREMENT_ID')
   };
   try {
     realApp = initializeApp(firebaseConfig);
