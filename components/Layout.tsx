@@ -56,9 +56,7 @@ const Layout: React.FC<LayoutProps> = ({ children, userRole, userName, onLogout 
       `}>
         <div className="flex flex-col h-full">
           <div className="p-8 flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-               <span className="text-white font-bold text-lg">P</span>
-            </div>
+            <img src="/logo.png" alt="Prashikshan" className="w-10 h-10 object-contain" />
             <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
               Prashikshan
             </span>
