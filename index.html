@@ -11,17 +11,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
       :root {
-        --glass-border: rgba(255, 255, 255, 0.08);
-        --glass-surface: rgba(255, 255, 255, 0.03);
-        --grid-color: rgba(0, 0, 0, 0.04);
-        --bg-color: #f8fafc;
-        --text-color: #0f172a;
+        /* Premium Light Mode */
+        --glass-border: rgba(99, 102, 241, 0.1);
+        --glass-surface: rgba(255, 255, 255, 0.85);
+        --grid-color: rgba(99, 102, 241, 0.05);
+        --bg-color: #f0f4f8; /* Softer, cooler white */
+        --text-color: #1e293b;
+        --shadow-color: rgba(99, 102, 241, 0.12);
+        --card-shadow: 0 20px 40px -12px var(--shadow-color);
       }
       
       .dark {
+        /* Deep Dark Mode */
+        --glass-border: rgba(255, 255, 255, 0.05);
+        --glass-surface: rgba(15, 23, 42, 0.6);
         --grid-color: rgba(255, 255, 255, 0.03);
         --bg-color: #0B1121;
         --text-color: #f8fafc;
+        --shadow-color: rgba(0, 0, 0, 0.5);
+        --card-shadow: none;
       }
 
       body {
@@ -71,16 +79,12 @@
       }
       
       .glass-card {
-        background: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(226, 232, 240, 0.8);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-      }
-      .dark .glass-card {
-        background: rgba(15, 23, 42, 0.6);
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        box-shadow: none;
+        background: var(--glass-surface);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        box-shadow: var(--card-shadow);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
       }
     </style>
     <script>
@@ -120,9 +124,11 @@
   }
 }
 </script>
-  </head>
+  <link rel="stylesheet" href="/index.css">
+</head>
   <body class="transition-colors duration-300 ease-in-out antialiased selection:bg-indigo-500 selection:text-white overflow-x-hidden">
     <div class="fixed inset-0 bg-grid-pattern opacity-100 pointer-events-none z-0"></div>
     <div id="root" class="relative z-10"></div>
-  </body>
+  <script type="module" src="/index.tsx"></script>
+</body>
 </html>

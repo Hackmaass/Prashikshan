@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
@@ -15,7 +14,7 @@ import {
 import { MOCK_INTERNSHIPS } from '../constants';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
 import DecryptedText from '../components/DecryptedText';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 
 interface StudentDashboardProps {
   hasAssessment?: boolean;
@@ -50,7 +49,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ hasAssessment = fal
   ], []);
 
   // Stagger animation variants
-  const containerVars = {
+  const containerVars: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -60,7 +59,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ hasAssessment = fal
     }
   };
 
-  const itemVars = {
+  const itemVars: Variants = {
     hidden: { opacity: 0, y: 20 },
     show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 50, damping: 20 } }
   };
@@ -242,7 +241,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ hasAssessment = fal
           </div>
           <div className="space-y-4">
             {MOCK_INTERNSHIPS.slice(0, 3).map((internship, idx) => (
-              <div key={internship.id} className="group relative p-6 bg-white dark:bg-[#131c31] rounded-2xl border border-slate-200 dark:border-white/5 hover:border-indigo-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/5 cursor-pointer overflow-hidden">
+              <div key={internship.id} className="group relative p-6 glass-card rounded-2xl hover:border-indigo-500/30 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/10 cursor-pointer overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-r from-indigo-500/0 via-indigo-500/0 to-indigo-500/5 group-hover:via-indigo-500/5 transition-all duration-500"></div>
                 <div className="relative z-10 flex items-start justify-between">
                   <div className="flex gap-4">

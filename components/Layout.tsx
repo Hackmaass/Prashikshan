@@ -49,7 +49,7 @@ const Layout: React.FC<LayoutProps> = ({ children, userRole, userName, onLogout 
       {/* Sidebar - Desktop */}
       <aside className={`
         fixed inset-y-0 left-0 z-50 w-72 
-        bg-white/80 dark:bg-[#0f172a]/80 backdrop-blur-xl 
+        bg-white/90 dark:bg-[#0f172a]/80 backdrop-blur-xl 
         border-r border-slate-200 dark:border-white/5
         transform transition-transform duration-500 cubic-bezier(0.32, 0.72, 0, 1) lg:translate-x-0
         ${isSidebarOpen ? 'translate-x-0 shadow-2xl lg:shadow-none' : '-translate-x-full'}
@@ -76,7 +76,7 @@ const Layout: React.FC<LayoutProps> = ({ children, userRole, userName, onLogout 
                 >
                   <div className={`
                     relative z-10 flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-300
-                    ${isActive ? 'text-white' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'}
+                    ${isActive ? 'text-white' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'}
                   `}>
                     {isActive && (
                       <motion.div
@@ -132,7 +132,7 @@ const Layout: React.FC<LayoutProps> = ({ children, userRole, userName, onLogout 
 
       {/* Main Content */}
       <main className="flex-1 lg:ml-72 flex flex-col min-h-screen relative z-0">
-        <header className="sticky top-0 z-30 bg-white/70 dark:bg-[#0B1121]/70 backdrop-blur-md border-b border-slate-200 dark:border-white/5 h-20 flex items-center justify-between px-6 lg:px-10 transition-colors duration-300">
+        <header className="sticky top-0 z-30 bg-white/80 dark:bg-[#0B1121]/70 backdrop-blur-md border-b border-slate-200 dark:border-white/5 h-20 flex items-center justify-between px-6 lg:px-10 transition-colors duration-300">
           <div className="flex items-center gap-4">
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -150,7 +150,7 @@ const Layout: React.FC<LayoutProps> = ({ children, userRole, userName, onLogout 
               onClick={() => setIsDarkMode(!isDarkMode)}
               className="p-2.5 rounded-full hover:bg-slate-100 dark:hover:bg-white/10 transition-colors text-slate-500 dark:text-slate-400 border border-transparent hover:border-slate-200 dark:hover:border-white/10"
             >
-              {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              {isDarkMode ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5 text-indigo-400" />}
             </button>
           </div>
         </header>

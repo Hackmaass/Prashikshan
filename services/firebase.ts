@@ -66,14 +66,21 @@ const DEFAULT_USER = {
 const getMockUsers = () => {
   try {
     const data = localStorage.getItem(MOCK_STORAGE_KEY);
-    if (!data) {
-      // Populate with default user if empty
-      const initialUsers = { [DEFAULT_USER_EMAIL]: DEFAULT_USER };
-      localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(initialUsers));
-      return initialUsers;
+    let users = data ? JSON.parse(data) : {};
+    
+    // FORCE INJECT DEFAULT USER if missing (Fixes invalid credentials error)
+    if (!users[DEFAULT_USER_EMAIL]) {
+      users[DEFAULT_USER_EMAIL] = DEFAULT_USER;
+      localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(users));
     }
-    return JSON.parse(data);
-  } catch { return {}; }
+    
+    return users;
+  } catch { 
+    // Fallback if corrupted
+    const initial = { [DEFAULT_USER_EMAIL]: DEFAULT_USER };
+    localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(initial));
+    return initial; 
+  }
 };
 
 const saveMockUsers = (users: any) => localStorage.setItem(MOCK_STORAGE_KEY, JSON.stringify(users));
