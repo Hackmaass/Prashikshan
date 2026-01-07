@@ -1,29 +1,56 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
 
-// Helper to safely get environment variables
-const getEnvVar = (name: string) => {
-  return import.meta.env[name] || (typeof process !== 'undefined' ? process.env[name] : undefined);
-};
-
 // Check if API key exists and is not a placeholder/empty
-const apiKey = getEnvVar('VITE_GEMINI_API_KEY') || getEnvVar('GEMINI_API_KEY') || getEnvVar('API_KEY');
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY || 
+               (typeof process !== 'undefined' ? (process.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY || process.env.API_KEY) : undefined);
+
 const hasApiKey = !!apiKey && apiKey !== 'undefined' && apiKey !== '';
+
+if (typeof window !== 'undefined') {
+  if (!hasApiKey) {
+    console.warn("Gemini API Key missing or empty.");
+  } else {
+    // Hidden debug info to verify key presence without leaking it
+    console.log(`Gemini API Key detected (Length: ${apiKey?.length}, Prefix: ${apiKey?.substring(0, 4)}...)`);
+  }
+}
 
 const getAI = () => {
   if (!hasApiKey) return null;
-  return new GoogleGenAI({ apiKey: apiKey || '' });
+  // Use v1beta where gemini-1.5-flash is actually hosted
+  return new GoogleGenAI({ 
+    apiKey: apiKey || '',
+    apiVersion: 'v1beta'
+  });
 };
 
 // Helper to safely extract JSON from markdown code blocks often returned by LLMs
 const cleanJSON = (text: string) => {
   try {
-    let cleaned = text.replace(/```json/g, '').replace(/```/g, '');
+    let cleaned = text.replace(/```json/g, '').replace(/```/g, '').trim();
     return JSON.parse(cleaned);
   } catch (e) {
-    console.warn("JSON Parse warning, attempting loose parse", e);
+    console.warn("JSON Parse warning", e);
     return {};
   }
+};
+
+// Simple cache to avoid duplicate API calls
+const cache = new Map<string, { data: any; timestamp: number }>();
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+const getCached = (key: string) => {
+  const entry = cache.get(key);
+  if (entry && Date.now() - entry.timestamp < CACHE_TTL) {
+    console.log("Using cached response");
+    return entry.data;
+  }
+  return null;
+};
+
+const setCache = (key: string, data: any) => {
+  cache.set(key, { data, timestamp: Date.now() });
 };
 
 // --- MOCK DATA GENERATORS (For Demo/Fallback Mode) ---
@@ -74,36 +101,37 @@ const getMockTutorPlan = (score: number, domain: string) => ({
 export const geminiService = {
   async getChatbotResponse(userMessage: string, userData: any) {
     if (!hasApiKey) {
-      await new Promise(r => setTimeout(r, 1000)); // Simulate latency
-      return "I'm running in Demo Mode (no API Key). I think that is a great question! In a real scenario, I would analyze your profile and give specific advice. For now, try checking the 'Internships' tab!";
+      await new Promise(r => setTimeout(r, 1000));
+      return "I'm running in Demo Mode (no API Key).";
     }
 
     const ai = getAI();
     if (!ai) return "AI Service Unavailable";
 
-    const systemPrompt = `You are "Prashikshan Assistant", an AI career coach for the Prashikshan platform. 
-    You help students find internships, improve resumes, and prepare for interviews.
+    const systemPrompt = `You are "Prashikshan Assistant", an AI career coach.
     Current User Profile: ${JSON.stringify(userData)}.
-    Answer concisely and helpfully. If asked about internships, suggest looking at their recommendations.`;
+    Answer concisely.`;
 
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: userMessage,
-        config: {
-          systemInstruction: systemPrompt,
-        },
+        model: 'gemini-2.0-flash',
+        contents: `${systemPrompt}\n\nUser Message: ${userMessage}`
       });
       return response.text || "I'm sorry, I couldn't process that.";
     } catch (error) {
       console.error("AI Error:", error);
-      return "I'm having trouble connecting to my brain right now. Please try again later!";
+      return "I'm having trouble connecting to my brain right now.";
     }
   },
 
   async analyzeResume(resumeText: string) {
+    // Check cache first
+    const cacheKey = `resume:${resumeText.slice(0, 100)}`;
+    const cached = getCached(cacheKey);
+    if (cached) return cached;
+
     if (!hasApiKey) {
-      await new Promise(r => setTimeout(r, 2000));
+      await new Promise(r => setTimeout(r, 500));
       return getMockResumeAnalysis();
     }
 
@@ -112,27 +140,17 @@ export const geminiService = {
 
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `Analyze this resume content and provide structured feedback.
-        Resume Content: ${resumeText}`,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              score: { type: Type.NUMBER },
-              strengths: { type: Type.ARRAY, items: { type: Type.STRING } },
-              improvements: { type: Type.ARRAY, items: { type: Type.STRING } },
-            },
-            required: ["score", "strengths", "improvements"]
-          }
-        }
+        model: 'gemini-2.0-flash',
+        contents: `Analyze resume. Return JSON: {score:number, strengths:string[], improvements:string[]}
+Resume: ${resumeText.slice(0, 2000)}`  // Limit input size
       });
-      return cleanJSON(response.text || '{}');
+      const result = cleanJSON(response.text || '{}');
+      setCache(cacheKey, result);
+      return result;
     } catch (error: any) {
       console.error("Analysis Error:", error);
-      if (error?.message?.includes('429') || error?.status === 429 || error?.toString().includes('Quota exceeded')) {
-        throw new Error("QUOTA_EXCEEDED");
+      if (error?.toString().includes('429')) {
+        throw new Error('QUOTA_EXCEEDED');
       }
       return null;
     }
@@ -149,24 +167,12 @@ export const geminiService = {
 
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
+        model: 'gemini-2.0-flash',
         contents: `Evaluate this interview answer.
         Question: ${question}
         User's Answer: ${answer}
         
-        Provide constructive feedback, a better version, and a rating out of 10.`,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              feedback: { type: Type.STRING },
-              betterAnswer: { type: Type.STRING },
-              rating: { type: Type.NUMBER }
-            },
-            required: ["feedback", "betterAnswer", "rating"]
-          }
-        }
+        Return raw JSON with keys: feedback (string), betterAnswer (string), rating (number).`
       });
       return cleanJSON(response.text || '{}');
     } catch (error) {
@@ -188,38 +194,11 @@ export const geminiService = {
     
     try {
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `The student scored ${score}/${total} (${percentage}%) in a ${domain} quiz.
+        model: 'gemini-2.0-flash',
+        contents: `Student scored ${score}/${total} in ${domain}.
         
-        Create a personalized learning plan JSON.
-        1. Determine level (Beginner/Intermediate/Advanced).
-        2. Provide 1-sentence feedback.
-        3. Identify 2 weak areas.
-        4. Create 3 actionable assignments.
-        5. List 3 recommended skills.`,
-        config: {
-          responseMimeType: "application/json",
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              level: { type: Type.STRING },
-              feedback: { type: Type.STRING },
-              weakAreas: { type: Type.ARRAY, items: { type: Type.STRING } },
-              assignments: { 
-                type: Type.ARRAY, 
-                items: { 
-                  type: Type.OBJECT,
-                  properties: {
-                    title: { type: Type.STRING },
-                    description: { type: Type.STRING },
-                    difficulty: { type: Type.STRING, enum: ["Easy", "Medium", "Hard"] }
-                  }
-                } 
-              },
-              recommendedSkills: { type: Type.ARRAY, items: { type: Type.STRING } },
-            }
-          }
-        }
+        Create a learning plan.
+        Return raw JSON with keys: level (string), feedback (string), weakAreas (array of strings), assignments (array of objects with title, description, difficulty), recommendedSkills (array of strings).`
       });
       return cleanJSON(response.text || '{}');
     } catch (error) {

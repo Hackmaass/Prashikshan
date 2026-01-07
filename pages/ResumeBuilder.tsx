@@ -10,18 +10,44 @@ import {
   Lightbulb
 } from 'lucide-react';
 import { geminiService } from '../services/geminiService';
+import { firebaseService } from '../services/firebase';
+import { useToast } from '../components/Toast';
 
 const ResumeBuilder: React.FC = () => {
   const [resumeText, setResumeText] = useState('');
   const [analysis, setAnalysis] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
+  const { addToast } = useToast();
+
   const handleAnalyze = async () => {
     if (!resumeText.trim()) return;
     setIsAnalyzing(true);
-    const result = await geminiService.analyzeResume(resumeText);
-    setAnalysis(result);
-    setIsAnalyzing(false);
+    try {
+      const result = await geminiService.analyzeResume(resumeText);
+      if (result) {
+        setAnalysis(result);
+        addToast("Resume analysis completed successfully!", "success");
+        
+        // Auto-save to history
+        const user = firebaseService.getCurrentUser();
+        if (user) {
+          firebaseService.saveResumeAnalysis(user.uid, resumeText, result)
+            .then(() => addToast("Analysis saved to history.", "info"))
+            .catch(err => console.error("Save failed", err));
+        }
+      } else {
+        addToast("Failed to analyze resume. Please try again.", "error");
+      }
+    } catch (error: any) {
+      if (error.message === 'QUOTA_EXCEEDED') {
+        addToast("⚠️ AI Quota Exceeded: You have reached the usage limit for the Free Tier. Please wait 24 hours before trying again.", "error");
+      } else {
+        addToast("An unexpected error occurred. Please check console.", "error");
+      }
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   return (

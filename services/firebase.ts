@@ -18,13 +18,10 @@ import {
 } from 'firebase/firestore';
 import { UserRole, EvaluationResult } from '../types';
 
-// Helper to safely get environment variables from Vite or process.env fallbacks
-const getEnvVar = (name: string) => {
-  return import.meta.env[name] || (typeof process !== 'undefined' ? process.env[name] : undefined);
-};
-
 // Check for API Key validity
-const apiKey = getEnvVar('VITE_FIREBASE_API_KEY') || getEnvVar('FIREBASE_API_KEY');
+const apiKey = import.meta.env.VITE_FIREBASE_API_KEY || 
+               (typeof process !== 'undefined' ? (process.env.VITE_FIREBASE_API_KEY || process.env.FIREBASE_API_KEY) : undefined);
+
 const hasApiKey = !!apiKey && apiKey !== 'undefined' && apiKey !== '';
 
 // --- Real Firebase Implementation Variables ---
@@ -34,13 +31,13 @@ let realApp: any;
 
 if (hasApiKey) {
   const firebaseConfig = {
-    apiKey: getEnvVar('VITE_FIREBASE_API_KEY') || getEnvVar('FIREBASE_API_KEY'),
-    authDomain: getEnvVar('VITE_FIREBASE_AUTH_DOMAIN') || getEnvVar('FIREBASE_AUTH_DOMAIN'),
-    projectId: getEnvVar('VITE_FIREBASE_PROJECT_ID') || getEnvVar('FIREBASE_PROJECT_ID'),
-    storageBucket: getEnvVar('VITE_FIREBASE_STORAGE_BUCKET') || getEnvVar('FIREBASE_STORAGE_BUCKET'),
-    messagingSenderId: getEnvVar('VITE_FIREBASE_MESSAGING_SENDER_ID') || getEnvVar('FIREBASE_MESSAGING_SENDER_ID'),
-    appId: getEnvVar('VITE_FIREBASE_APP_ID') || getEnvVar('FIREBASE_APP_ID'),
-    measurementId: getEnvVar('VITE_FIREBASE_MEASUREMENT_ID') || getEnvVar('FIREBASE_MEASUREMENT_ID')
+    apiKey: apiKey,
+    authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || (typeof process !== 'undefined' ? process.env.FIREBASE_AUTH_DOMAIN : undefined),
+    projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || (typeof process !== 'undefined' ? process.env.FIREBASE_PROJECT_ID : undefined),
+    storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || (typeof process !== 'undefined' ? process.env.FIREBASE_STORAGE_BUCKET : undefined),
+    messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || (typeof process !== 'undefined' ? process.env.FIREBASE_MESSAGING_SENDER_ID : undefined),
+    appId: import.meta.env.VITE_FIREBASE_APP_ID || (typeof process !== 'undefined' ? process.env.FIREBASE_APP_ID : undefined),
+    measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || (typeof process !== 'undefined' ? process.env.FIREBASE_MEASUREMENT_ID : undefined)
   };
   try {
     realApp = initializeApp(firebaseConfig);
