@@ -142,14 +142,8 @@ prashikshan/
 
 ---
 
-## 👥 Team Prashikshan
-
-| Name                   | Role                              |
-| ---------------------- | --------------------------------- |
-| **Arpita Mahale**      | Frontend & UI Developer           |
-| **Pranay Patil**       | PPT, Documentation & Coordination |
-| **Mrinmayee Kamble**   | AI Model & Integration Engineer   |
-| **Krushnamegh Kamble** | Backend Architecture & APIs       |
+## 👥 Team Tech Titans
+Made this for Tech Titans in return of Assignments
 
 ---
 
